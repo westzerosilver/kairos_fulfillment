@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<robot  xmlns:xacro="http://www.ros.org/wiki/xacro" name="package_unit" >
+	
+<xacro:property name="width" value=".2" />
+
+
+  <link name="base_footprint"/>
+
+    <joint name="base_joint" type="fixed">
+      <parent link = "base_footprint"/>
+      <child link = "base"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    </joint>
+
+  <link name="base">
+    <visual>
+      <geometry>
+      <mesh filename="packaging_UNIT.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="servofix_A_1">
+    <visual>
+      <geometry>
+      <mesh filename="servo_fixed.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+   <link name="servofix_A_2">
+    <visual>
+      <geometry>
+      <mesh filename="servo_fixed.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="servofix_B_1">
+    <visual>
+      <geometry>
+      <mesh filename="servo_fixed2.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="servofix_B_2">
+    <visual>
+      <geometry>
+      <mesh filename="servo_fixed2.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="covering_part">
+    <visual>
+      <geometry>
+      <mesh filename="covering_part.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="servo1">
+    <visual>
+      <geometry>
+      <mesh filename="servo_UNIT.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+  <link name="servo2">
+    <visual>
+      <geometry>
+      <mesh filename="servo_UNIT.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+
+  <joint name="base_servofix" type="fixed">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <parent link="base"/>
+    <child link="servofix_A_1"/>
+  </joint>
+
+  <joint name="servofix_servo1" type="revolute">
+    <axis xyz="0 -1 0"/>
+    <limit effort = "1000.0" lower = "-2.879" upper = "2.879" velocity = "0"/>
+    <parent link="servofix_A_1"/>
+    <child link="servo1"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="servo1_servofix" type="fixed">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <parent link="servo1"/>
+    <child link="servofix_B_1"/>
+  </joint>
+
+  <joint name="servofix_servofix" type="fixed">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <parent link="servofix_B_1"/>
+    <child link="servofix_B_2"/>
+  </joint>
+
+  <joint name="servofix_servo2" type="revolute">
+    <axis xyz="0 -1 0"/>
+    <limit effort = "1000.0" lower = "-2.879" upper = "2.879" velocity = "0"/>
+    <parent link="servofix_B_2"/>
+    <child link="servo2"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="servo2_end" type="fixed">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <parent link="servo2"/>
+    <child link="covering_part"/>
+  </joint>
+
+
+</robot>

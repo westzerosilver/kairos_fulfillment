@@ -1,0 +1,4 @@
+repository "test_ros@alsrldi7460@cloud"
+  path "/"
+    br "/main"
+    co "/main"

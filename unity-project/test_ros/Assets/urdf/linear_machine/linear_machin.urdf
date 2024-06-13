@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<robot  xmlns:xacro="http://www.ros.org/wiki/xacro" name="Linear_machine" >
+	
+<xacro:property name="width" value=".2" />
+
+
+  <link name="base_footprint"/>
+
+    <joint name="base_joint" type="fixed">
+      <parent link = "base_footprint"/>
+      <child link = "base"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    </joint>
+
+  <link name="base">
+    <visual>
+      <geometry>
+      <mesh filename="rack.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="xrail_upper">
+    <visual>
+      <geometry>
+      <mesh filename="xrail.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="xrail_lower">
+    <visual>
+      <geometry>
+      <mesh filename="xrail.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+   <link name="yrail">
+    <visual>
+      <geometry>
+      <mesh filename="yrail.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="nema_mount_right">
+    <visual>
+      <geometry>
+      <mesh filename="nema_mount_right.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="nema_mount_left">
+    <visual>
+      <geometry>
+      <mesh filename="nema23_mount_left.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="skeleton">
+    <visual>
+      <geometry>
+      <mesh filename="skeleton.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+  <link name="wall">
+    <visual>
+      <geometry>
+      <mesh filename="wall.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+    <link name="belt">
+    <visual>
+      <geometry>
+      <mesh filename="Belt.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+  </link>
+
+
+
+  <joint name="base_xup" type="fixed">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <parent link="base"/>
+    <child link="xrail_upper"/>
+  </joint>
+
+  <joint name="base_xdown" type="fixed">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <parent link="base"/>
+    <child link="xrail_lower"/>
+  </joint>
+
+  <joint name="xrail_yrail" type="prismatic">
+    <axis xyz="0 -1 0"/>
+    <parent link="xrail_upper"/>
+    <child link="yrail"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="yrail_skeleton" type="prismatic">
+    <axis xyz="0 -1 0"/>
+    <parent link="yrail"/>
+    <child link="skeleton"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  </joint>
+  
+  
+
+  <joint name="skleton_wall" type="fixed">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <parent link="skeleton"/>
+    <child link="wall"/>
+  </joint>
+
+  <joint name="skleton_belt" type="fixed">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <parent link="skeleton"/>
+    <child link="belt"/>
+  </joint>
+
+</robot>
