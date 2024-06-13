@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<robot  xmlns:xacro="http://www.ros.org/wiki/xacro" name="conveyer_export" >
+	
+<xacro:property name="width" value=".2" />
+
+
+  <link name="base_footprint"/>
+
+    <joint name="base_joint" type="fixed">
+      <parent link = "base_footprint"/>
+      <child link = "base"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    </joint>
+
+  <link name="base">
+    <visual>
+      <geometry>
+      <mesh filename="conveyor_base.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+    <collision>
+      <geometry>
+      <mesh filename="conveyor_base.obj"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
+  </link>
+
+  <link name="roller_right">
+    <visual>
+      <geometry>
+      <mesh filename="conveyor_roller.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+    <collision>
+      <geometry>
+      <mesh filename="conveyor_roller.obj"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
+  </link>
+
+  <link name="roller_left">
+    <visual>
+      <geometry>
+      <mesh filename="conveyor_roller.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+    <collision>
+      <geometry>
+      <mesh filename="conveyor_roller.obj"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
+  </link>
+
+
+  <link name="belt">
+    <visual>
+      <geometry>
+      <mesh filename="conveyor_belt.obj"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </visual>
+    <collision>
+      <geometry>
+      <mesh filename="conveyor_belt.obj"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
+  </link>
+
+
+  <joint name="rollerright_link" type="fixed">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <parent link="base"/>
+    <child link="roller_right"/>
+  </joint>
+
+  <joint name="rollerleft_link" type="fixed">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <parent link="base"/>
+    <child link="roller_left"/>
+  </joint>
+
+
+  <joint name="belt_link" type="fixed">
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+      <parent link="base"/>
+      <child link="belt"/>
+  </joint>
+
+
+</robot>
