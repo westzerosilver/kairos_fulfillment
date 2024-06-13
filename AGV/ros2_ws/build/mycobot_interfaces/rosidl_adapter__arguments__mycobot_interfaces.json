@@ -1,0 +1,8 @@
+{
+  "package_name": "mycobot_interfaces",
+  "non_idl_tuples": [
+    "/home/park/ros2_ws/src/mycobot_interfaces:srv/DetectionRQ.srv",
+    "/home/park/ros2_ws/src/mycobot_interfaces:srv/StateRQ.srv",
+    "/home/park/ros2_ws/src/mycobot_interfaces:action/StateACT.action"
+  ]
+}

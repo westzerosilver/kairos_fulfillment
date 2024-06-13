@@ -1,0 +1,22 @@
+// generated from rosidl_adapter/resource/action.idl.em
+// with input from mycobot_interfaces/action/StateACT.action
+// generated code does not contain a copyright notice
+
+
+module mycobot_interfaces {
+  module action {
+    struct StateACT_Goal {
+      boolean trigger;
+
+      int8 target;
+    };
+    struct StateACT_Result {
+      boolean endflag;
+
+      int8 result;
+    };
+    struct StateACT_Feedback {
+      int8 state;
+    };
+  };
+};

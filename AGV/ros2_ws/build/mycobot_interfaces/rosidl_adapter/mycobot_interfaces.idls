@@ -1,0 +1,3 @@
+/home/park/ros2_ws/build/mycobot_interfaces/rosidl_adapter/mycobot_interfaces:srv/DetectionRQ.idl
+/home/park/ros2_ws/build/mycobot_interfaces/rosidl_adapter/mycobot_interfaces:srv/StateRQ.idl
+/home/park/ros2_ws/build/mycobot_interfaces/rosidl_adapter/mycobot_interfaces:action/StateACT.idl
