@@ -1,0 +1,7 @@
+bool trigger
+int8 target
+---
+bool endflag
+int8 result
+---
+int8 state
