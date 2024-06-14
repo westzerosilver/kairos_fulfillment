@@ -1,0 +1,34 @@
+blue:
+    low_h:             61
+    high_h:            119
+    low_s:             168
+    high_s:            255
+    low_v:             120
+    high_v:            176
+orange:
+    low_h:             0
+    high_h:            17
+    low_s:             133
+    high_s:            230
+    low_v:             147
+    high_v:            230
+purple:
+    low_h:             123
+    high_h:            158
+    low_s:             82
+    high_s:            169
+    low_v:             92
+    high_v:            147
+green:
+    low_h:             54
+    high_h:            86
+    low_s:             127
+    high_s:            196
+    low_v:             72
+    high_v:            108
+
+
+##point of (x = -0.257 y = 0.188);
+robot_focus:
+  x:  346
+  y:  302

@@ -1,0 +1,5 @@
+bool trigger
+int8 target
+---
+bool endflag
+int8 result
