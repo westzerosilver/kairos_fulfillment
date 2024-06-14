@@ -20,11 +20,8 @@
 using namespace std::chrono_literals;
 using namespace std;
 
-// #define CAMFOCUS_X 320
-// #define CAMFOCUS_Y 214
-
-#define CAMFOCUS_X 371
-#define CAMFOCUS_Y 231
+#define CAMFOCUS_X 346
+#define CAMFOCUS_Y 302
 
 vector<tuple<string,float,float,float,float>> detected_cube;
 geometry_msgs::msg::Pose target_pose;
@@ -92,7 +89,7 @@ void detectionRequest(rclcpp::Node::SharedPtr detection_request_node, rclcpp::Lo
             auto centerx = detection.bbox.center.position.x;
             auto centery = detection.bbox.center.position.y;
             auto angle = detection.bbox.center.theta;
-            float m_per_pixel = 0.000833333;
+            float m_per_pixel = (0.025/detection.bbox.size_y + 0.025/detection.bbox.size_y)/2;
             detected_cube.push_back({color, centerx, centery, angle, m_per_pixel});
         }
     } else {
@@ -194,32 +191,39 @@ auto addCollision(moveit::planning_interface::MoveGroupInterface& move_group_int
     }
 
 
-    moveit_msgs::msg::CollisionObject addCubeCollision(moveit::planning_interface::MoveGroupInterface& move_group_interface, double cube_x, double cube_y, double cube_z) {
-    // Initialize the collision object
-    moveit_msgs::msg::CollisionObject collision_object;
-    collision_object.header.frame_id = move_group_interface.getPlanningFrame();
-    collision_object.id = "cube";
 
-    // Define the box size
-    shape_msgs::msg::SolidPrimitive primitive;
-    primitive.type = shape_msgs::msg::SolidPrimitive::BOX;
-    primitive.dimensions.resize(3); // Box requires 3 dimensions
-    primitive.dimensions[shape_msgs::msg::SolidPrimitive::BOX_X] = 0.06; // Width
-    primitive.dimensions[shape_msgs::msg::SolidPrimitive::BOX_Y] = 0.02; // Depth
-    primitive.dimensions[shape_msgs::msg::SolidPrimitive::BOX_Z] = 0.02; // Height
+auto addCubeCollision(moveit::planning_interface::MoveGroupInterface& move_group_interface){
+        auto const collision_object = [frame_id =move_group_interface.getPlanningFrame()] {
+        moveit_msgs::msg::CollisionObject collision_object;
+        collision_object.header.frame_id = frame_id;
+        collision_object.id = "cube";
+        int idx=0;
+        for(auto& elem:stacked_cube){
+            if (elem>0){
+                for(int i=0; i<elem; i++){
+                    shape_msgs::msg::SolidPrimitive primitive;
+                    primitive.type = primitive.BOX;
+                    primitive.dimensions.resize(3);
+                    primitive.dimensions[primitive.BOX_X] = 0.023;
+                    primitive.dimensions[primitive.BOX_Y] = 0.023;
+                    primitive.dimensions[primitive.BOX_Z] = 0.023;
+                    
+                    // Define the pose of the box (relative to the frame_id)
+                    geometry_msgs::msg::Pose box_pose;
+                    box_pose.orientation.w =1.0;
+                    box_pose.position.x = get<0>(cube_drop_point[idx]);
+                    box_pose.position.y = get<1>(cube_drop_point[idx]);
+                    box_pose.position.z = 0.023 * i + primitive.dimensions[primitive.BOX_Z]/2;
 
-    // Define the pose of the box
-    geometry_msgs::msg::Pose box_pose;
-    box_pose.orientation.w = 1.0;
-    box_pose.position.x = cube_x;
-    box_pose.position.y = cube_y;
-    box_pose.position.z = cube_z + primitive.dimensions[shape_msgs::msg::SolidPrimitive::BOX_Z] / 2; // Position z plus half height
-
-    // Assign primitive and pose to the collision object
-    collision_object.primitives.push_back(primitive);
-    collision_object.primitive_poses.push_back(box_pose);
-    collision_object.operation = moveit_msgs::msg::CollisionObject::ADD;
-
+                    collision_object.primitives.push_back(primitive);
+                    collision_object.primitive_poses.push_back(box_pose);
+                }
+            }
+            idx++;
+        }
+        collision_object.operation = collision_object.ADD;
+        return collision_object;
+    }();
     return collision_object;
 }
 
@@ -229,7 +233,7 @@ void initSetting(){
     cube_drop_point.push_back({0.225,0.089,0.155});
     cube_drop_point.push_back({0.225,0.195,0.155});
     cube_drop_point.push_back({0.143,0.195,0.155});
-    cube_drop_point.push_back({0.047,0.195,0.155});
+    cube_drop_point.push_back({0.0,0.195,0.155});
 }
 
     
@@ -269,12 +273,12 @@ int main(int argc, char* argv[]) {
     int stop_flag=0;
     while(!stop_flag){
         // arm 을 ready 위치로 이동
-
-
-        arm_move_group_interface.setNamedTarget("home");
+        arm_move_group_interface.setNamedTarget("grip_cube_ready");
         planAndExecute(arm_move_group_interface, plan, logger);
         this_thread::sleep_for(2s);
 
+        auto collision_object=addCubeCollision(arm_move_group_interface);
+        planning_scene_interface.applyCollisionObject(collision_object);
 
         string target_color;
         float center_x;
@@ -282,21 +286,14 @@ int main(int argc, char* argv[]) {
         float target_theta;
         float m_per_pixel;
         bool detection_flag=true;
-
-        // 
         while (detection_flag){
             detectionRequest(detection_request_node, logger);
-            for (auto& elem:detected_cube){
-                cout<<get<0>(elem)<<" "<<get<1>(elem)<<" "<<get<2>(elem)<<" "<<get<3>(elem)<<"\n";
-            }
-
             vector<tuple<string,float,float,float,float>> tempv;
             for(auto& elem:detected_cube){
                 center_x = get<1>(elem);
                 center_y = get<2>(elem);
-                // if (center_y<270||center_y>350||center_x<210||center_x>360) continue;
+                if (center_y<270||center_y>350||center_x<260||center_x>415) continue;
                 tempv.push_back(elem);
-
             }
             if(tempv.size()==0){
                 cout<<"noting detected\n";
@@ -324,12 +321,6 @@ int main(int argc, char* argv[]) {
         }
         detection_flag=true;
         
-
-        arm_move_group_interface.setNamedTarget("grip_ready");
-        planAndExecute(arm_move_group_interface, plan, logger);
-        this_thread::sleep_for(2s);
-
-
         // rotate alignment 
         // bool turn_right_flag=true;
         if (target_theta>45)target_theta=(target_theta-90)*M_PI/180;
@@ -360,12 +351,11 @@ int main(int argc, char* argv[]) {
         current_pose = arm_move_group_interface.getCurrentPose().pose;
         float end_Y = arm_move_group_interface.getCurrentRPY()[2];
         float dx=(center_x - CAMFOCUS_X) * m_per_pixel;
-        float dy=(center_y - CAMFOCUS_Y) * m_per_pixel;
+        float dy=(CAMFOCUS_Y - center_y) * m_per_pixel;
 
 
-        //
-        float position_x = 0.322992 + dy;
-        float position_y = -0.02 + dx;
+        float position_x = -0.2152 - dy;
+        float position_y = 0.1762 + dx;
 
         RCLCPP_INFO(node->get_logger(), "from center Cube pose x,y,theta: %f %f %f",dy, dx, end_Y);
         RCLCPP_INFO(node->get_logger(), "Current pose: %f %f %f", current_pose.position.x, current_pose.position.y, current_pose.position.z);
@@ -379,11 +369,11 @@ int main(int argc, char* argv[]) {
         target_pose=current_pose;
         target_pose.position.x=position_x;
         target_pose.position.y=position_y;
-        target_pose.position.z=0.28;
+        target_pose.position.z=0.29;
         waypoints.push_back(target_pose);
 
 
-        target_pose.position.z-=0.021;
+        target_pose.position.z-=0.024;
         waypoints.push_back(target_pose);
 
         
@@ -397,63 +387,64 @@ int main(int argc, char* argv[]) {
 
 
 
-        hand_move_group_interface.setNamedTarget("grip");
+        hand_move_group_interface.setNamedTarget("grip_cube");
         planAndExecute(hand_move_group_interface,plan,logger);
         this_thread::sleep_for(1s);
 
-
-
         ////drop cube;
+
+        if (target_color=="green"){
+            target_pose.position.x=get<0>(cube_drop_point[3]);
+            target_pose.position.y=get<1>(cube_drop_point[3]);
+            target_pose.position.z=0.29;
+
+            arm_move_group_interface.setPoseTarget(target_pose);
+            planAndExecute(arm_move_group_interface,plan,logger);
+            this_thread::sleep_for(2s);
+
+            hand_move_group_interface.setNamedTarget("halfopen");
+            planAndExecute(hand_move_group_interface,plan,logger);
+            this_thread::sleep_for(1s);
+            
+            hand_move_group_interface.setNamedTarget("close");
+            planAndExecute(hand_move_group_interface,plan,logger);
+            this_thread::sleep_for(1s);
+            continue;
+        }
+
+        arm_move_group_interface.setNamedTarget("ready");
+        planAndExecute(arm_move_group_interface,plan,logger);
+        this_thread::sleep_for(2s);
 
         waypoints.clear();
 
         current_pose = arm_move_group_interface.getCurrentPose().pose;
         target_pose=current_pose;
         waypoints.push_back(target_pose);
-        // float goal_z;
+        float goal_z;
+        for(int i=0; i<4; i++){
+            if (target_color!=cubes[i]) continue;
+            target_pose.position.x=get<0>(cube_drop_point[i]);
+            target_pose.position.y=get<1>(cube_drop_point[i]);
+            target_pose.position.z=0.25;
+            goal_z=get<2>(cube_drop_point[i])+stacked_cube[i]*0.025 + 0.002;
+            stacked_cube[i]++;
+        }
 
-        
-        // for(int i=0; i<4; i++){
-        //     if (target_color!=cubes[i]) continue;
-
-        //     target_pose.position.x=get<0>(cube_drop_point[i]);
-        //     target_pose.position.y=get<1>(cube_drop_point[i]);
-        //     target_pose.position.z=0.25;
-
-        //     if (cubes[i].compare("green") == 0) {
-        //         goal_z = 0.4;
-        //     }
-        //     else {
-        //         goal_z=get<2>(cube_drop_point[i])+stacked_cube[i]*0.025 + 0.002;
-        //     }
-            
-        //     stacked_cube[i]++;
-        // }
-
-
-
-
-
-
-        // waypoints.push_back(target_pose);
-        // target_pose.position.z=goal_z;
-        // waypoints.push_back(target_pose);
-        // fraction = arm_move_group_interface.computeCartesianPath(waypoints,eef_step,jump_threshold,trajectory);
-        // RCLCPP_INFO(logger, "Visualizing plan 4 (Cartesian path) (%.2f%% achieved)", fraction * 100.0);
-        // arm_move_group_interface.execute(trajectory);
-        // this_thread::sleep_for(2s);
-
-        
-        arm_move_group_interface.setNamedTarget("drop");
-        planAndExecute(arm_move_group_interface, plan, logger);
-        this_thread::sleep_for(1s);
+        waypoints.push_back(target_pose);
+        target_pose.position.z=goal_z;
+        waypoints.push_back(target_pose);
+        fraction = arm_move_group_interface.computeCartesianPath(waypoints,eef_step,jump_threshold,trajectory);
+        RCLCPP_INFO(logger, "Visualizing plan 4 (Cartesian path) (%.2f%% achieved)", fraction * 100.0);
+        arm_move_group_interface.execute(trajectory);
+        this_thread::sleep_for(2s);
 
         hand_move_group_interface.setNamedTarget("halfopen");
         planAndExecute(hand_move_group_interface,plan,logger);
         this_thread::sleep_for(1s);
         
         //// ready,close
-        arm_move_group_interface.setNamedTarget("home");
+        arm_move_group_interface.setNamedTarget("ready");
         planAndExecute(arm_move_group_interface,plan,logger);
         this_thread::sleep_for(2s);
         
@@ -464,8 +455,8 @@ int main(int argc, char* argv[]) {
 
         // cout<<"if want to stop press 1 , test again press 0 : ";
         // cin>>stop_flag;
-        cout<<"drop & drop  done wait 2s";
-        this_thread::sleep_for(2s);
+        cout<<"drop & drop  done wait 1s \n";
+        this_thread::sleep_for(1s);
     }
     rclcpp::shutdown();
     return 0;

@@ -9,17 +9,19 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(vision_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(mycobot_interfaces REQUIRED)
-find_package(pc_ctrl_interfaces REQUIRED)
+
 
 
 add_executable(marker_creater src/marker_creater.cpp)
 add_executable(grip_test src/grip_test.cpp)
-add_executable(grip_with_yolo src/grip_with_yolo.cpp)
+add_executable(grip_task src/grip_task.cpp)
+add_executable(jacobian src/jacobian.cpp)
 
 target_include_directories(marker_creater PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -47,18 +49,24 @@ ament_target_dependencies(
 )
 
 ament_target_dependencies(
-  grip_with_yolo
+  grip_task
   "moveit_ros_planning_interface"
   "rclcpp"
   "geometry_msgs"
   "visualization_msgs"
+  "std_msgs"
   "vision_msgs"
   "sensor_msgs"
   "mycobot_interfaces"
-  "pc_ctrl_interfaces"
 )
 
-install(TARGETS marker_creater grip_test grip_with_yolo
+ament_target_dependencies(
+  jacobian
+  "moveit_ros_planning_interface"
+  "rclcpp"
+)
+
+install(TARGETS marker_creater grip_test grip_task jacobian
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

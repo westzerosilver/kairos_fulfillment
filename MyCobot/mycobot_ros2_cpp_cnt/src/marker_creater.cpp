@@ -52,8 +52,8 @@ private:
             marker->action = visualization_msgs::msg::Marker::ADD;
 
             // Set marker pose and scale based on extracted x, y size data
-            float dx=(detection.bbox.center.position.x - 321) * m_per_pixel;
-            float dy=(259 - detection.bbox.center.position.y) * m_per_pixel;
+            float dx=(detection.bbox.center.position.x - 345) * m_per_pixel;
+            float dy=(93 - detection.bbox.center.position.y) * m_per_pixel;
             float theta = atan2(current_pose.position.y,current_pose.position.x)-1.570796;
 
             marker->pose.position.x =dx*cos(theta)-dy*sin(theta)+current_pose.position.x;
